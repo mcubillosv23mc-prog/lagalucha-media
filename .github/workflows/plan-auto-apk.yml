@@ -1,0 +1,59 @@
+name: Plan Auto APK
+
+on:
+  push:
+    paths:
+      - 'app-plan-auto/**'
+      - '.github/workflows/plan-auto-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app-plan-auto/android
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Copiar la app web dentro del APK
+        run: |
+          mkdir -p app/src/main/assets
+          {
+            echo '<!doctype html><html lang="es"><head><meta charset="utf-8">'
+            echo '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>'
+            cat ../web/index.html
+            echo '</body></html>'
+          } > app/src/main/assets/index.html
+
+      - name: Compilar APK
+        run: gradle assembleDebug --no-daemon
+
+      - name: Renombrar
+        run: cp app/build/outputs/apk/debug/app-debug.apk ../PlanAuto.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PlanAuto-apk
+          path: app-plan-auto/PlanAuto.apk
+
+      - name: Publicar descarga directa
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: plan-auto-latest
+          name: Plan Auto (APK)
+          body: Descarga PlanAuto.apk desde el celular e instálalo (permite "instalar apps desconocidas").
+          files: app-plan-auto/PlanAuto.apk
+          make_latest: false

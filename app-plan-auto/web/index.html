@@ -1,0 +1,399 @@
+<title>Plan Cambio de Auto</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: app de una columna, tarjetas de sección, barra inferior con 5 pestañas */
+:root{
+  --bg:#f3f6f5; --surface:#ffffff; --fg:#14211f; --muted:#5b6b68; --line:#d9e2e0;
+  --accent:#0f7b6c; --accent-soft:#dff1ed; --diesel:#b86b00; --diesel-soft:#fbeed8;
+  --ok:#1d7a3a; --ok-soft:#dcf2e2; --warn:#a46200; --warn-soft:#fdf0d5; --bad:#b3261e; --bad-soft:#fbe0dd;
+  --f-display:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-body:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-num:"JetBrains Mono",ui-monospace,"Roboto Mono",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1514; --surface:#162120; --fg:#e4eeec; --muted:#93a6a2; --line:#2a3a38;
+  --accent:#3cc1aa; --accent-soft:#163a35; --diesel:#e9a23b; --diesel-soft:#3a2a12;
+  --ok:#5fd07f; --ok-soft:#173523; --warn:#f0b54a; --warn-soft:#3a2c10; --bad:#ff8a80; --bad-soft:#3d1a18; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1514; --surface:#162120; --fg:#e4eeec; --muted:#93a6a2; --line:#2a3a38;
+  --accent:#3cc1aa; --accent-soft:#163a35; --diesel:#e9a23b; --diesel-soft:#3a2a12;
+  --ok:#5fd07f; --ok-soft:#173523; --warn:#f0b54a; --warn-soft:#3a2c10; --bad:#ff8a80; --bad-soft:#3d1a18; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:16px calc(84px + env(safe-area-inset-bottom,0px))}
+main{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header.top{display:flex;flex-direction:column;gap:2px}
+header.top small{color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+h1{font-family:var(--f-display);font-weight:800;font-size:26px;line-height:1.15;margin:0;text-wrap:balance}
+h2{font-family:var(--f-display);font-weight:800;font-size:18px;margin:0;text-wrap:balance}
+p{margin:0}
+.muted{color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{display:flex;flex-direction:column;gap:2px;padding:12px;border-radius:10px;background:var(--bg);min-width:0}
+.tile .lbl{font-size:12px;color:var(--muted);font-weight:600}
+.tile .val{font-family:var(--f-num);font-size:17px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.verdict{border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:6px;border:1px solid transparent}
+.verdict.ok{background:var(--ok-soft);border-color:var(--ok)} .verdict.ok .tag{color:var(--ok)}
+.verdict.warn{background:var(--warn-soft);border-color:var(--warn)} .verdict.warn .tag{color:var(--warn)}
+.verdict.bad{background:var(--bad-soft);border-color:var(--bad)} .verdict.bad .tag{color:var(--bad)}
+.tag{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.verdict h2{font-size:19px}
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;gap:6px;align-items:end;grid-template-columns:1fr 120px 32px}
+.row.debt{grid-template-columns:1fr 1fr 1fr 70px 32px}
+.row.trip{grid-template-columns:1fr 80px 70px 32px}
+@media (max-width:480px){
+  .row.debt{grid-template-columns:1fr 1fr 32px} .row.debt .name{grid-column:1 / -1}
+  .row.debt .rate{grid-column:auto}
+}
+label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted);font-weight:600;min-width:0}
+input{font:inherit;font-size:15px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+input[type=number]{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:8px 12px;font-weight:600}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+button.del{padding:0;width:32px;height:38px;color:var(--muted);font-size:18px;line-height:1}
+.add{align-self:flex-start}
+.sum{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:10px;font-weight:700}
+.bar{display:flex;flex-direction:column;gap:6px}
+.bar .track{height:12px;border-radius:6px;background:var(--bg);overflow:hidden}
+.bar .fill{height:100%;border-radius:6px}
+.bar .meta{display:flex;justify-content:space-between;font-size:13px}
+.steps{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none;counter-reset:s}
+.steps li{display:grid;grid-template-columns:28px 1fr;gap:10px;counter-increment:s}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:13px}
+.chip{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700}
+.chip.d{background:var(--diesel-soft);color:var(--diesel)} .chip.e{background:var(--accent-soft);color:var(--accent)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.presets button{font-size:13px;padding:6px 10px}
+textarea{font-family:var(--f-num);font-size:12px;width:100%;min-height:110px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:8px}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);
+  padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);z-index:20}
+nav.tabs button{border:0;border-radius:0;background:none;padding:10px 2px 12px;font-size:12px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px}
+nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+nav.tabs button[aria-selected=true]{color:var(--accent)}
+.note{font-size:13px;color:var(--muted)}
+.compare{display:grid;grid-template-columns:1fr auto auto;gap:6px 12px;font-size:14px;align-items:baseline}
+.compare .h{font-size:12px;font-weight:700;color:var(--muted)}
+.compare .r{text-align:right}
+.ex{font-size:12px;background:var(--warn-soft);color:var(--warn);padding:6px 10px;border-radius:8px;font-weight:600}
+@media (prefers-reduced-motion:no-preference){.bar .fill{transition:width .3s ease}}
+</style>
+
+<main>
+  <header class="top">
+    <small>Casablanca · Peugeot 301 diésel → eléctrico</small>
+    <h1>¿Me conviene cambiar el auto?</h1>
+  </header>
+  <p class="ex" id="exBanner">Los números que ves son de EJEMPLO. Cámbialos por los tuyos en cada pestaña; se guardan solos en este teléfono.</p>
+
+  <!-- RESUMEN -->
+  <section data-view="resumen" class="view" style="display:flex;flex-direction:column;gap:16px">
+    <div class="verdict" id="vHoy"></div>
+    <div class="card">
+      <h2>Tu mes hoy</h2>
+      <div class="tiles">
+        <div class="tile"><span class="lbl">Ingresos</span><span class="val" id="tIng"></span></div>
+        <div class="tile"><span class="lbl">Gastos fijos</span><span class="val" id="tGas"></span></div>
+        <div class="tile"><span class="lbl">Cuotas de deudas</span><span class="val" id="tDeu"></span></div>
+        <div class="tile"><span class="lbl">Auto actual (todo)</span><span class="val" id="tAuto"></span></div>
+      </div>
+      <div class="sum"><span>Te sobra al mes</span><span class="num" id="tSobra"></span></div>
+    </div>
+
+    <div class="card">
+      <h2>Diésel vs eléctrico, solo manejar</h2>
+      <p class="muted" id="kmTxt"></p>
+      <div class="bar"><div class="meta"><span><span class="chip d">Diésel</span> combustible</span><span class="num" id="bDie"></span></div><div class="track"><div class="fill" id="fDie" style="background:var(--diesel)"></div></div></div>
+      <div class="bar"><div class="meta"><span><span class="chip e">Eléctrico</span> electricidad</span><span class="num" id="bEle"></span></div><div class="track"><div class="fill" id="fEle" style="background:var(--accent)"></div></div></div>
+      <div class="compare" id="cmp"></div>
+    </div>
+
+    <div class="verdict" id="vDespues"></div>
+
+    <div class="card">
+      <h2>Tu plan, paso a paso</h2>
+      <ol class="steps" id="plan"></ol>
+    </div>
+  </section>
+
+  <!-- PLATA -->
+  <section data-view="plata" class="view" hidden style="flex-direction:column;gap:16px">
+    <div class="card">
+      <h2>Ingresos del mes</h2>
+      <p class="note">Sueldo líquido, boletas, arriendos, lo que entre cada mes.</p>
+      <div class="rows" id="lIng"></div>
+      <button class="add" data-add="ingresos">+ Agregar ingreso</button>
+      <div class="sum"><span>Total</span><span class="num" id="sIng"></span></div>
+    </div>
+    <div class="card">
+      <h2>Gastos fijos del mes</h2>
+      <p class="note">No pongas aquí el diésel, seguro ni permiso del auto, ni las cuotas de deudas: van en sus pestañas.</p>
+      <div class="rows" id="lGas"></div>
+      <button class="add" data-add="gastos">+ Agregar gasto</button>
+      <div class="sum"><span>Total</span><span class="num" id="sGas"></span></div>
+    </div>
+    <div class="card">
+      <h2>Colchón mínimo</h2>
+      <label>Plata que quieres que te quede libre cada mes para imprevistos
+        <input type="number" id="colchon" inputmode="numeric"></label>
+    </div>
+  </section>
+
+  <!-- DEUDAS -->
+  <section data-view="deudas" class="view" hidden style="flex-direction:column;gap:16px">
+    <div class="card">
+      <h2>Tus deudas</h2>
+      <p class="note">Tarjetas, créditos de consumo, avances, casas comerciales. La tasa mensual (%) sale en tu estado de cuenta como "tasa de interés mensual" o CAE ÷ 12 aprox.</p>
+      <div class="rows" id="lDeu"></div>
+      <button class="add" data-add="deudas">+ Agregar deuda</button>
+      <div class="sum"><span>Deuda total</span><span class="num" id="sDeu"></span></div>
+    </div>
+    <div class="card">
+      <h2>Orden de pago sugerido</h2>
+      <p class="note">Pagas la cuota mínima de todas y todo lo que te sobre (menos tu colchón) va a la deuda con la tasa más alta. Cuando terminas una, su cuota se suma a la siguiente.</p>
+      <ol class="steps" id="debtPlan"></ol>
+    </div>
+  </section>
+
+  <!-- TRAYECTOS -->
+  <section data-view="trayectos" class="view" hidden style="flex-direction:column;gap:16px">
+    <div class="card">
+      <h2>Tus trayectos de la semana</h2>
+      <p class="note">Kilómetros de ida y vuelta, y cuántas veces lo haces por semana. Las distancias rápidas son aproximadas desde Casablanca.</p>
+      <div class="presets" id="presets"></div>
+      <div class="rows" id="lTra"></div>
+      <button class="add" data-add="trayectos">+ Agregar trayecto</button>
+      <div class="sum"><span>Km al mes</span><span class="num" id="sKm"></span></div>
+    </div>
+    <div class="card">
+      <h2>Sacar tus km reales de Google Maps</h2>
+      <ol class="steps">
+        <li><span>Abre Google Maps → tu foto de perfil → <b>Tu cronología</b>.</span></li>
+        <li><span>Arriba toca el ícono de calendario y elige un mes completo. Abajo aparece el total de km "en auto".</span></li>
+        <li><span>Divide ese total por 4,3 para tener km por semana, o pon el mes completo como un trayecto con 1 vez por semana × 0,23.</span></li>
+        <li><span>Si no tienes la cronología activada: anota el odómetro del 301 hoy y en 7 días más. Esa resta es tu dato más confiable.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- AUTOS -->
+  <section data-view="autos" class="view" hidden style="flex-direction:column;gap:16px">
+    <div class="card">
+      <h2><span class="chip d">Diésel</span> Tu Peugeot 301</h2>
+      <div class="grid2">
+        <label>Rendimiento real (km/L)<input type="number" step="0.1" data-k="actual.rend"></label>
+        <label>Precio diésel ($/L)<input type="number" data-k="actual.precio"></label>
+        <label>Mantención al año ($)<input type="number" data-k="actual.mant"></label>
+        <label>Seguro al mes ($)<input type="number" data-k="actual.seguro"></label>
+        <label>Permiso circulación al año ($)<input type="number" data-k="actual.permiso"></label>
+        <label>Cuánto te dan si lo vendes ($)<input type="number" data-k="actual.venta"></label>
+      </div>
+      <p class="note">Rendimiento real: llena el estanque, deja el cuentakilómetros parcial en 0, maneja normal y al volver a llenar divide km ÷ litros cargados. Un 301 1.6 HDi suele andar entre 16 y 20 km/L.</p>
+    </div>
+    <div class="card">
+      <h2><span class="chip e">Eléctrico</span> El auto que quieres</h2>
+      <div class="grid2">
+        <label>Precio del auto ($)<input type="number" data-k="ev.precio"></label>
+        <label>Consumo (kWh/100 km)<input type="number" step="0.1" data-k="ev.consumo"></label>
+        <label>Precio luz ($/kWh)<input type="number" data-k="ev.kwh"></label>
+        <label>Mantención al año ($)<input type="number" data-k="ev.mant"></label>
+        <label>Seguro al mes ($)<input type="number" data-k="ev.seguro"></label>
+        <label>Permiso circulación al año ($)<input type="number" data-k="ev.permiso"></label>
+        <label>Pie extra a juntar ($)<input type="number" data-k="ev.pieExtra"></label>
+        <label>Tasa crédito (% mensual)<input type="number" step="0.01" data-k="ev.tasa"></label>
+        <label>Plazo crédito (meses)<input type="number" data-k="ev.plazo"></label>
+        <label>Cargador en casa ($, una vez)<input type="number" data-k="ev.cargador"></label>
+      </div>
+      <p class="note">Pie = lo que te dan por el 301 + el pie extra que juntes. El precio de la luz sale en tu boleta de Chilquinta (total ÷ kWh consumidos). Cargar en casa sale mucho más barato que en electrolineras públicas.</p>
+    </div>
+    <div class="card">
+      <h2>Respaldar o enviar tus datos</h2>
+      <p class="note">Copia este texto y pégalo en el chat con Claude para que revise tu caso, o guárdalo como respaldo.</p>
+      <textarea id="json" aria-label="Datos en formato texto"></textarea>
+      <div class="presets">
+        <button id="btnCopy" class="primary">Copiar datos</button>
+        <button id="btnLoad">Cargar datos pegados</button>
+        <button id="btnReset">Volver al ejemplo</button>
+      </div>
+      <p class="note" id="msg" aria-live="polite"></p>
+    </div>
+  </section>
+</main>
+
+<nav class="tabs" role="tablist" aria-label="Secciones">
+  <button role="tab" data-tab="resumen" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Resumen</button>
+  <button role="tab" data-tab="plata" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Plata</button>
+  <button role="tab" data-tab="deudas" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>Deudas</button>
+  <button role="tab" data-tab="trayectos" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/></svg>Trayectos</button>
+  <button role="tab" data-tab="autos" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M5 16h14M3 16v-4l2-5h14l2 5v4"/><circle cx="7.5" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg>Autos</button>
+</nav>
+
+<script>
+(function(){
+const KEY='planCambioAuto.v1';
+const EJEMPLO={
+  ejemplo:true,
+  ingresos:[{n:'Sueldo líquido',v:1250000}],
+  gastos:[{n:'Arriendo / dividendo',v:320000},{n:'Supermercado y feria',v:220000},{n:'Luz',v:45000},{n:'Agua',v:15000},{n:'Gas',v:25000},{n:'Internet y celular',v:35000},{n:'Peajes Ruta 68 / TAG',v:60000}],
+  deudas:[{n:'Tarjeta de crédito',saldo:1500000,cuota:110000,tasa:2.8},{n:'Crédito de consumo',saldo:3200000,cuota:160000,tasa:1.7}],
+  trayectos:[{n:'Casablanca – Santiago (trabajo)',km:156,veces:2},{n:'Casablanca – Valparaíso',km:90,veces:1},{n:'Vueltas en Casablanca',km:10,veces:5}],
+  actual:{rend:18,precio:1000,mant:400000,seguro:35000,permiso:180000,venta:6000000},
+  ev:{precio:15990000,consumo:15,kwh:230,mant:150000,seguro:45000,permiso:70000,pieExtra:2000000,tasa:1.6,plazo:36,cargador:600000},
+  colchon:60000
+};
+const PRESETS=[['Santiago',156],['Valparaíso',90],['Viña del Mar',100],['Algarrobo',80],['San Antonio',130],['Quintay',70]];
+const clone=o=>JSON.parse(JSON.stringify(o));
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+if(!S||!S.ingresos) S=clone(EJEMPLO);
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const n=v=>{const x=parseFloat(v);return isFinite(x)?x:0};
+const fmt=new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0});
+const $$=v=>fmt.format(Math.round(v));
+const sum=(a,k)=>a.reduce((t,x)=>t+n(x[k]),0);
+const meses=m=>m>=12?`${Math.floor(m/12)} año${Math.floor(m/12)>1?'s':''}${m%12?` y ${m%12} mes${m%12>1?'es':''}`:''}`:`${m} mes${m===1?'':'es'}`;
+const fecha=m=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+m);return d.toLocaleDateString('es-CL',{month:'long',year:'numeric'})};
+
+function pmt(r,nper,pv){if(pv<=0)return 0;if(r===0)return pv/nper;return pv*r/(1-Math.pow(1+r,-nper))}
+
+function calc(){
+  const ing=sum(S.ingresos,'v'), gas=sum(S.gastos,'v'), cuotas=sum(S.deudas,'cuota'), deudaTot=sum(S.deudas,'saldo');
+  const kmMes=S.trayectos.reduce((t,x)=>t+n(x.km)*n(x.veces),0)*4.33;
+  const A=S.actual,E=S.ev;
+  const comb=n(A.rend)>0?kmMes/n(A.rend)*n(A.precio):0;
+  const autoAct=comb+n(A.mant)/12+n(A.seguro)+n(A.permiso)/12;
+  const elec=kmMes*n(E.consumo)/100*n(E.kwh);
+  const evOper=elec+n(E.mant)/12+n(E.seguro)+n(E.permiso)/12;
+  const pie=n(A.venta)+n(E.pieExtra);
+  const financiado=Math.max(0,n(E.precio)-pie);
+  const cuotaEV=pmt(n(E.tasa)/100,Math.max(1,n(E.plazo)),financiado);
+  const evTotal=evOper+cuotaEV;
+  const colchon=n(S.colchon);
+  const sobraHoy=ing-gas-cuotas-autoAct;
+  const sobraConEVHoy=sobraHoy+autoAct-evTotal;
+  const sobraSinDeudas=sobraHoy+cuotas;
+  const sobraConEVDespues=sobraSinDeudas+autoAct-evTotal;
+  // Simulación avalancha
+  const ds=S.deudas.map(d=>({n:d.n||'Deuda',b:n(d.saldo),c:n(d.cuota),r:n(d.tasa)/100,fin:null})).filter(d=>d.b>0);
+  const extraBase=Math.max(0,sobraHoy-colchon);
+  let m=0,imposible=false;
+  while(ds.some(d=>d.b>0.5)&&m<360){
+    m++;
+    let extra=extraBase;
+    ds.forEach(d=>{if(d.b<=0.5){extra+=d.c;return}d.b*=1+d.r;const p=Math.min(d.c,d.b);d.b-=p;extra+=d.c-p;});
+    ds.filter(d=>d.b>0.5).sort((a,b)=>b.r-a.r).forEach(d=>{const p=Math.min(extra,d.b);d.b-=p;extra-=p});
+    ds.forEach(d=>{if(d.b<=0.5&&d.fin===null)d.fin=m});
+  }
+  if(ds.some(d=>d.b>0.5))imposible=true;
+  const mesesDeuda=ds.length?m:0;
+  // ahorro para el pie después de las deudas
+  const ahorroMes=Math.max(0,sobraSinDeudas-colchon);
+  const mesesPie=n(E.pieExtra)+n(E.cargador)>0?(ahorroMes>0?Math.ceil((n(E.pieExtra)+n(E.cargador))/ahorroMes):Infinity):0;
+  // precio máximo de EV que puedes pagar dejando el colchón (después de deudas)
+  const holgura=sobraSinDeudas+autoAct-evOper-colchon;
+  const r=n(E.tasa)/100,np=Math.max(1,n(E.plazo));
+  const finMax=holgura<=0?0:(r===0?holgura*np:holgura*(1-Math.pow(1+r,-np))/r);
+  const precioMax=finMax+pie;
+  return {ing,gas,cuotas,deudaTot,kmMes,comb,autoAct,elec,evOper,pie,financiado,cuotaEV,evTotal,colchon,sobraHoy,sobraConEVHoy,sobraSinDeudas,sobraConEVDespues,ds,mesesDeuda,imposible,ahorroMes,mesesPie,precioMax,extraBase};
+}
+
+function verdict(el,cls,tag,title,body){el.className='verdict '+cls;el.innerHTML=`<span class="tag">${tag}</span><h2>${title}</h2><p>${body}</p>`}
+
+function render(){
+  const R=calc();
+  $('exBanner').hidden=!S.ejemplo;
+  $('tIng').textContent=$$(R.ing);$('tGas').textContent=$$(R.gas);$('tDeu').textContent=$$(R.cuotas);$('tAuto').textContent=$$(R.autoAct);
+  $('tSobra').textContent=$$(R.sobraHoy);$('tSobra').style.color=R.sobraHoy<0?'var(--bad)':R.sobraHoy<R.colchon?'var(--warn)':'var(--ok)';
+  $('kmTxt').textContent=`Manejas unos ${Math.round(R.kmMes).toLocaleString('es-CL')} km al mes.`;
+  const mx=Math.max(R.comb,R.elec,1);
+  $('bDie').textContent=$$(R.comb)+'/mes';$('bEle').textContent=$$(R.elec)+'/mes';
+  $('fDie').style.width=(R.comb/mx*100)+'%';$('fEle').style.width=(R.elec/mx*100)+'%';
+  $('cmp').innerHTML=`<span class="h">Costo mensual</span><span class="h r">301</span><span class="h r">Eléctrico</span>
+    <span>Energía</span><span class="num r">${$$(R.comb)}</span><span class="num r">${$$(R.elec)}</span>
+    <span>Mantención, seguro y permiso</span><span class="num r">${$$(R.autoAct-R.comb)}</span><span class="num r">${$$(R.evOper-R.elec)}</span>
+    <span>Cuota crédito auto</span><span class="num r">${$$(0)}</span><span class="num r">${$$(R.cuotaEV)}</span>
+    <span><b>Total</b></span><span class="num r"><b>${$$(R.autoAct)}</b></span><span class="num r"><b>${$$(R.evTotal)}</b></span>`;
+  const ahorroOper=R.autoAct-R.evOper;
+  // Veredicto hoy
+  if(R.sobraHoy<0) verdict($('vHoy'),'bad','Hoy: no todavía',`Te faltan ${$$(-R.sobraHoy)} al mes`,`Antes de pensar en otro auto hay que tapar ese hoyo. Revisa la pestaña Plata: cada gasto que bajes acerca el cambio.`);
+  else if(R.sobraConEVHoy<R.colchon) verdict($('vHoy'),'bad','Hoy: no todavía',`Con el eléctrico te quedarían ${$$(R.sobraConEVHoy)} al mes`,`El eléctrico te ahorra ${$$(ahorroOper)} al mes en uso, pero la cuota de ${$$(R.cuotaEV)} se come ese ahorro mientras sigas pagando ${$$(R.cuotas)} en deudas.`);
+  else verdict($('vHoy'),'ok','Hoy: es factible',`Con el eléctrico te quedarían ${$$(R.sobraConEVHoy)} al mes`,`Puedes pagar la cuota y mantener tu colchón. Igual conviene bajar primero la deuda más cara.`);
+  // Veredicto después de deudas
+  if(R.imposible) verdict($('vDespues'),'bad','Ojo con las deudas','Con lo que pagas hoy, alguna deuda no baja','La cuota de al menos una deuda no alcanza a cubrir los intereses. Hay que renegociar (pide repactación o consolidación en tu banco o en CMF Educa) antes de cualquier otra cosa.');
+  else if(R.sobraConEVDespues>=R.colchon) verdict($('vDespues'),'ok','Después de pagar deudas',`Sí te alcanza: te quedarían ${$$(R.sobraConEVDespues)} al mes`,`Precio máximo de eléctrico que te conviene con este crédito: <b class="num">${$$(Math.max(0,R.precioMax))}</b>.`);
+  else if(R.sobraConEVDespues<0) verdict($('vDespues'),'bad','Después de pagar deudas',`Aún no alcanzaría: faltarían ${$$(-R.sobraConEVDespues)} al mes`,`Con tus números, el eléctrico que te conviene debería costar máximo <b class="num">${$$(Math.max(0,R.precioMax))}</b>. Si ese monto es muy bajo, sigue con el 301 y ahorra.`);
+  else verdict($('vDespues'),'warn','Después de pagar deudas',`Aún quedaría justo: ${$$(R.sobraConEVDespues)} al mes`,`Busca un eléctrico de máximo <b class="num">${$$(Math.max(0,R.precioMax))}</b>, junta más pie o alarga el plazo.`);
+  // Plan
+  const P=[];
+  if(R.sobraHoy<R.colchon) P.push(`Recorta gastos hasta que te sobren al menos ${$$(R.colchon)} al mes. Mira primero supermercado, planes de celular y suscripciones.`);
+  if(R.ds.length&&!R.imposible){
+    P.push(`Paga tus deudas con el orden de la pestaña Deudas, poniendo ${$$(R.extraBase)} extra al mes. Quedas libre en ${meses(R.mesesDeuda)} (≈ ${fecha(R.mesesDeuda)}).`);
+  } else if(R.imposible) P.push('Renegocia la deuda que no baja (repactación o crédito de consolidación a menor tasa).');
+  const objetivo=n(S.ev.pieExtra)+n(S.ev.cargador);
+  if(objetivo>0){
+    if(isFinite(R.mesesPie)) P.push(`Junta ${$$(objetivo)} para pie extra y cargador, ahorrando ${$$(R.ahorroMes)} al mes: ${meses(R.mesesPie)} más.`);
+    else P.push(`Sin deudas aún no te sobra para ahorrar el pie de ${$$(objetivo)}. Hay que bajar gastos.`);
+  }
+  if(!R.imposible&&isFinite(R.mesesPie)){
+    const t=R.mesesDeuda+R.mesesPie;
+    P.push(`Vende el 301 (≈ ${$$(n(S.actual.venta))}) y compra el eléctrico ${R.sobraConEVDespues>=R.colchon?'':'(uno más barato, máx. '+$$(Math.max(0,R.precioMax))+') '}hacia <b>${fecha(t)}</b>.`);
+  }
+  P.push(`Mientras tanto, ahorra diésel: con tu uso cada 1 km/L más de rendimiento te ahorra ≈ ${$$(R.kmMes/Math.max(1,n(S.actual.rend))*n(S.actual.precio)-R.kmMes/(n(S.actual.rend)+1)*n(S.actual.precio))} al mes. Neumáticos bien inflados y 90–100 km/h en la Ruta 68 ayudan.`);
+  $('plan').innerHTML=P.map(x=>`<li><span>${x}</span></li>`).join('');
+  // Deudas
+  $('debtPlan').innerHTML=R.ds.length?R.ds.slice().sort((a,b)=>(a.fin??999)-(b.fin??999)).map(d=>`<li><span><b>${esc(d.n)}</b> (${(d.r*100).toFixed(1)}% mensual) — ${d.fin?'pagada en '+meses(d.fin)+', '+fecha(d.fin):'no se termina de pagar con la cuota actual'}</span></li>`).join(''):'<li><span>No tienes deudas ingresadas.</span></li>';
+  $('sIng').textContent=$$(R.ing);$('sGas').textContent=$$(R.gas);$('sDeu').textContent=$$(R.deudaTot);$('sKm').textContent=Math.round(R.kmMes).toLocaleString('es-CL')+' km';
+  $('json').value=JSON.stringify(S);
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+const LISTS={
+  ingresos:{el:'lIng',cls:'',fields:[['n','Ingreso','text','name'],['v','Monto $','number','']]},
+  gastos:{el:'lGas',cls:'',fields:[['n','Gasto','text','name'],['v','Monto $','number','']]},
+  deudas:{el:'lDeu',cls:'debt',fields:[['n','Deuda','text','name'],['saldo','Saldo $','number',''],['cuota','Cuota $','number',''],['tasa','% mes','number','rate']]},
+  trayectos:{el:'lTra',cls:'trip',fields:[['n','Trayecto','text','name'],['km','Km i/v','number',''],['veces','Veces/sem','number','']]}
+};
+function renderList(k){
+  const L=LISTS[k];
+  $(L.el).innerHTML=S[k].map((it,i)=>`<div class="row ${L.cls}">${L.fields.map(([f,lab,t,c])=>`<label class="${c}">${lab}<input id="${k}-${i}-${f}" type="${t}" ${t==='number'?'inputmode="decimal" step="any"':''} data-list="${k}" data-i="${i}" data-f="${f}" value="${esc(it[f]??'')}"></label>`).join('')}<button class="del" aria-label="Eliminar" data-del="${k}" data-i="${i}">×</button></div>`).join('');
+}
+function renderAll(){Object.keys(LISTS).forEach(renderList);
+  document.querySelectorAll('[data-k]').forEach(inp=>{const [a,b]=inp.dataset.k.split('.');inp.value=S[a][b]});
+  $('colchon').value=S.colchon;render();}
+function touch(){if(S.ejemplo){S.ejemplo=false}save();render();}
+
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.dataset.list){const it=S[t.dataset.list][+t.dataset.i];it[t.dataset.f]=t.type==='number'?n(t.value):t.value;touch();}
+  else if(t.dataset.k){const [a,b]=t.dataset.k.split('.');S[a][b]=n(t.value);touch();}
+  else if(t.id==='colchon'){S.colchon=n(t.value);touch();}
+});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.add){const k=b.dataset.add;S[k].push(k==='deudas'?{n:'',saldo:0,cuota:0,tasa:2}:k==='trayectos'?{n:'',km:0,veces:1}:{n:'',v:0});renderList(k);touch();}
+  else if(b.dataset.del){S[b.dataset.del].splice(+b.dataset.i,1);renderList(b.dataset.del);touch();}
+  else if(b.dataset.preset){S.trayectos.push({n:'Casablanca – '+b.dataset.preset,km:+b.dataset.km,veces:1});renderList('trayectos');touch();}
+  else if(b.dataset.tab){show(b.dataset.tab);}
+});
+function show(v){document.querySelectorAll('.view').forEach(s=>{const on=s.dataset.view===v;s.hidden=!on;if(on)s.style.display='flex'});
+  document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===v));window.scrollTo(0,0);}
+$('presets').innerHTML=PRESETS.map(([p,k])=>`<button data-preset="${p}" data-km="${k}">${p} · ${k} km</button>`).join('');
+$('btnCopy').onclick=()=>{const ta=$('json');ta.value=JSON.stringify(S);
+  const ok=()=>$('msg').textContent='Copiado. Pégalo en el chat.';
+  const fb=()=>{ta.focus();ta.select();try{document.execCommand('copy');ok()}catch(e){$('msg').textContent='Mantén presionado el texto y elige Copiar.'}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(ta.value).then(ok,fb)}else fb();};
+$('btnLoad').onclick=()=>{try{const d=JSON.parse($('json').value);if(!d.ingresos)throw 0;S=Object.assign(clone(EJEMPLO),d);S.ejemplo=false;save();renderAll();$('msg').textContent='Datos cargados.'}catch(e){$('msg').textContent='Ese texto no es válido. Copia de nuevo desde el respaldo.'}};
+let resetArmed=false;
+$('btnReset').onclick=e=>{if(!resetArmed){resetArmed=true;e.target.textContent='Toca otra vez para borrar todo';setTimeout(()=>{resetArmed=false;e.target.textContent='Volver al ejemplo'},3000);return}
+  S=clone(EJEMPLO);save();renderAll();resetArmed=false;e.target.textContent='Volver al ejemplo';$('msg').textContent='Se cargó el ejemplo.'};
+renderAll();
+})();
+</script>

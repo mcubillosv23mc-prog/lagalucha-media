@@ -1,0 +1,1311 @@
+<title>Plan Auto Eléctrico</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* required styles */
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+/* Prevents IE11 from highlighting tiles in blue */
+.leaflet-tile::selection {
+	background: transparent;
+}
+/* Safari renders non-retina tile on retina better with this, but Chrome is worse */
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+/* hack that prevents hw layers "stretching" when loading new tiles */
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+/* .leaflet-container svg: reset svg max-width decleration shipped in Joomla! (joomla.org) 3.x */
+/* .leaflet-container img: map is broken in FF if you have max-width: 100% on tiles */
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+
+.leaflet-container img.leaflet-tile {
+	/* See: https://bugs.chromium.org/p/chromium/issues/detail?id=600120 */
+	mix-blend-mode: plus-lighter;
+}
+
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	/* Fallback for FF which doesn't support pinch-zoom */
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+/* workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=888319 */
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+
+.leaflet-pane         { z-index: 400; }
+
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+.lvml {
+	behavior: url(#default#VML);
+	display: inline-block;
+	position: absolute;
+	}
+
+
+/* control positioning */
+
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+
+
+/* zoom and fade animations */
+
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+
+
+/* cursors */
+
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+
+/* marker & overlays interactivity */
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+
+/* visual tweaks */
+
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+
+
+/* general typography */
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+
+
+/* general toolbar styles */
+
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+
+/* zoom control */
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+
+
+/* layers control */
+
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-control-layers-toggle {
+	background-image: url(images/layers.png);
+	width: 36px;
+	height: 36px;
+	}
+.leaflet-retina .leaflet-control-layers-toggle {
+	background-image: url(images/layers-2x.png);
+	background-size: 26px 26px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+
+/* Default icon URLs */
+.leaflet-default-icon-path { /* used only in path-guessing heuristic, see L.Icon.Default */
+	background-image: url(images/marker-icon.png);
+	}
+
+
+/* attribution and scale controls */
+
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+
+
+/* popup */
+
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+
+	margin: -10px auto 0;
+	pointer-events: auto;
+
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+
+
+/* div icon */
+
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+
+
+/* Tooltip */
+/* Base styles for the element that has a tooltip */
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+
+/* Directions */
+
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+
+/* Printing */
+
+@media print {
+	/* Prevent printers from removing background-images of controls. */
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+
+</style>
+<style>
+/* Layout: app móvil de una columna; cabecera con semáforo, tarjetas por sección, barra inferior de 5 pestañas */
+:root{
+  --bg:#eef2f7; --surface:#ffffff; --surface2:#f6f8fb; --ink:#14203a; --muted:#5d6b85; --line:#dbe2ec;
+  --ev:#0e9f86; --ev-soft:#d8f3ed; --dsl:#d77a1f; --dsl-soft:#fcebd7; --brand:#2f4bd3; --brand-soft:#e3e8fc;
+  --ok:#17803d; --ok-soft:#ddf4e4; --warn:#a86300; --warn-soft:#fdf0d6; --bad:#c0352b; --bad-soft:#fde3e0;
+  --hero1:#1b2b57; --hero2:#0f6d78; --on-hero:#ffffff;
+  --f-display:"Outfit",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-num:"JetBrains Mono",ui-monospace,"Roboto Mono",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0c1220; --surface:#141c2e; --surface2:#1a2438; --ink:#e6ecf7; --muted:#9aa8c2; --line:#26324a;
+  --ev:#3fd2b6; --ev-soft:#123b37; --dsl:#f0a352; --dsl-soft:#3a2915; --brand:#8a9cff; --brand-soft:#222c55;
+  --ok:#5bd683; --ok-soft:#14331f; --warn:#f2b64d; --warn-soft:#382a10; --bad:#ff8a7f; --bad-soft:#3d1916;
+  --hero1:#18244a; --hero2:#0d4f58; --on-hero:#ffffff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c1220; --surface:#141c2e; --surface2:#1a2438; --ink:#e6ecf7; --muted:#9aa8c2; --line:#26324a;
+  --ev:#3fd2b6; --ev-soft:#123b37; --dsl:#f0a352; --dsl-soft:#3a2915; --brand:#8a9cff; --brand-soft:#222c55;
+  --ok:#5bd683; --ok-soft:#14331f; --warn:#f2b64d; --warn-soft:#382a10; --bad:#ff8a7f; --bad-soft:#3d1916;
+  --hero1:#18244a; --hero2:#0d4f58; --on-hero:#ffffff; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:max(14px,env(safe-area-inset-right,0px));
+  padding-block:12px calc(88px + env(safe-area-inset-bottom,0px))}
+main{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h2{font-size:19px;font-weight:700} h3{font-size:15px;font-weight:700}
+p{margin:0}
+.muted{color:var(--muted)} .small{font-size:13px}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--ev));display:grid;place-items:center;color:#fff}
+.logo svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2}
+.brand b{font-family:var(--f-display);font-size:18px;display:block;line-height:1.1}
+.brand span{font-size:12px;color:var(--muted)}
+.iconbtn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.iconbtn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8}
+.hero{border-radius:20px;padding:18px;color:var(--on-hero);background:linear-gradient(140deg,var(--hero1),var(--hero2));display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.07)}
+.hero .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.8;font-weight:600}
+.hero h1{font-size:26px;line-height:1.15}
+.hero .row{display:flex;gap:10px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.ev{background:var(--ev-soft);color:var(--ev)} .pill.dsl{background:var(--dsl-soft);color:var(--dsl)}
+.hero .stat{background:rgba(255,255,255,.12);border-radius:12px;padding:10px 12px;flex:1 1 130px;min-width:0}
+.hero .stat small{display:block;font-size:11px;opacity:.85;text-transform:uppercase;letter-spacing:.06em}
+.hero .stat b{font-family:var(--f-num);font-size:18px;font-weight:500}
+.progress{height:10px;background:rgba(255,255,255,.18);border-radius:6px;overflow:hidden}
+.progress i{display:block;height:100%;background:#7ef0d6;border-radius:6px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.kpi{background:var(--surface2);border-radius:12px;padding:10px 12px;min-width:0}
+.kpi small{display:block;font-size:12px;color:var(--muted);font-weight:500}
+.kpi b{font-family:var(--f-num);font-size:16px;font-weight:500;overflow-wrap:anywhere}
+.split{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.total{border-top:1px solid var(--line);padding-top:10px;font-weight:700}
+.chart{width:100%;height:auto;display:block}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:middle}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+.steps li{display:grid;grid-template-columns:22px 1fr;gap:12px;position:relative;padding-bottom:14px}
+.steps li::before{content:"";width:12px;height:12px;border-radius:50%;margin:5px 5px 0;background:var(--surface);border:3px solid var(--brand)}
+.steps li::after{content:"";position:absolute;left:10px;top:20px;bottom:0;width:2px;background:var(--line)}
+.steps li:last-child::after{display:none}
+.steps li.done::before{background:var(--ok);border-color:var(--ok)}
+.steps li.car::before{border-color:var(--ev);background:var(--ev)}
+.steps b{font-weight:600}
+.steps .when{font-size:12px;color:var(--muted)}
+.steps .when::first-letter{text-transform:uppercase}
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;gap:8px;align-items:end;grid-template-columns:minmax(0,1fr) 116px 40px}
+.row.gasto{grid-template-columns:minmax(0,1fr) 108px 52px 40px}
+.row.deuda{grid-template-columns:minmax(0,1fr) 70px 40px}
+.row.deuda .cuotas{grid-column:1 / -1}
+.row.ev{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 40px}
+.evrow{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.evrow.fav{border-color:var(--ev);box-shadow:0 0 0 1px var(--ev) inset}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.evgrid{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr)}
+@media (max-width:420px){.row.gasto{grid-template-columns:minmax(0,1fr) 96px 46px 36px}}
+label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted);font-weight:500;min-width:0}
+input,select,textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%;min-width:0}
+input[type=number]{font-family:var(--f-num)}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--brand);margin:9px auto}
+textarea{font-family:var(--f-num);font-size:12px;min-height:90px}
+input:focus-visible,button:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 14px;font-weight:600}
+button.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+button.ev{background:var(--ev);border-color:var(--ev);color:#fff}
+button.ghost{background:transparent}
+button.del{padding:0;width:40px;height:41px;color:var(--muted);font-size:20px;line-height:1}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+a.btnlink{display:inline-flex;align-items:center;gap:6px;text-decoration:none;border-radius:10px;padding:9px 14px;font-weight:600;background:var(--surface);border:1px solid var(--line);color:var(--ink)}
+a.btnlink svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.note{font-size:13px;color:var(--muted)}
+.banner{border-radius:12px;padding:10px 12px;font-size:13px;font-weight:500}
+.banner.warn{background:var(--warn-soft);color:var(--warn)} .banner.info{background:var(--brand-soft);color:var(--brand)} .banner.bad{background:var(--bad-soft);color:var(--bad)} .banner.ok{background:var(--ok-soft);color:var(--ok)}
+#map{height:260px;border-radius:12px;border:1px solid var(--line);z-index:0;background:var(--surface2)}
+.tag{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.compare{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px 14px;font-size:14px;align-items:baseline}
+.compare .h{font-size:12px;font-weight:700;color:var(--muted)} .compare .r{text-align:right}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+td.r,th.r{text-align:right}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);
+  padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav.tabs button{border:0;border-radius:0;background:none;padding:9px 2px 11px;font-size:11px;font-weight:600;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px}
+nav.tabs svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+nav.tabs button[aria-selected=true]{color:var(--brand)}
+nav.tabs button[aria-selected=true] svg{stroke-width:2.3}
+.view{display:flex;flex-direction:column;gap:14px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:13px;z-index:40}
+@media (prefers-reduced-motion:no-preference){.progress i,.bar{transition:width .35s ease}}
+</style>
+
+<main>
+  <div class="topbar">
+    <div class="brand"><div class="logo"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div>
+      <div><b>Plan Auto Eléctrico</b><span>Diésel → eléctrico, sin desordenar la plata</span></div></div>
+    <button class="iconbtn" data-tab="datos" aria-label="Mis datos y respaldo"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></button>
+  </div>
+  <p class="banner warn" id="exBanner" hidden>Estás viendo datos de ejemplo. Toca el ícono de datos arriba a la derecha para cargar tu archivo o empieza a cambiar los montos.</p>
+
+  <!-- INICIO -->
+  <section class="view" data-view="inicio">
+    <div class="hero">
+      <div class="row" style="justify-content:space-between;align-items:center"><span class="eyebrow">Tu plan</span><span class="pill" id="hPill"></span></div>
+      <h1 id="hTitle"></h1>
+      <div class="row">
+        <div class="stat"><small>Te sobra este mes</small><b id="hSobra"></b></div>
+        <div class="stat"><small>Con eléctrico</small><b id="hSobraEv"></b></div>
+        <div class="stat"><small>Fecha de cambio</small><b id="hFecha" style="font-family:var(--f-display);font-size:17px;font-weight:700"></b></div>
+      </div>
+      <div><div class="split small" style="margin-bottom:6px"><span>Deudas de tarjetas pagadas</span><span id="hProgTxt" class="num"></span></div><div class="progress"><i id="hProg"></i></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>Próximos 18 meses</h2><span class="tag">sobrante mensual</span></div>
+      <svg class="chart" id="chart" viewBox="0 0 640 220" role="img" aria-label="Sobrante proyectado por mes"></svg>
+      <div class="legend"><span><i style="background:var(--dsl)"></i>Con el 301</span><span><i style="background:var(--ev)"></i>Con eléctrico</span><span><i style="background:var(--brand)"></i>Ahorro acumulado</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Hoja de ruta</h2>
+      <ol class="steps" id="roadmap"></ol>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>Diésel vs eléctrico</h2><span class="pill ev" id="evName"></span></div>
+      <p class="muted small" id="kmTxt"></p>
+      <div class="compare" id="cmp"></div>
+    </div>
+
+    <div class="card">
+      <h2>Tu mes hoy</h2>
+      <div class="kpis">
+        <div class="kpi"><small>Ingresos (con aporte)</small><b id="kIng"></b></div>
+        <div class="kpi"><small>Gastos del mes</small><b id="kGas"></b></div>
+        <div class="kpi"><small>Cuotas este mes</small><b id="kDeu"></b></div>
+        <div class="kpi"><small>Auto (todo)</small><b id="kAuto"></b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLATA -->
+  <section class="view" data-view="plata" hidden>
+    <div class="card">
+      <h2>Ingresos</h2>
+      <div class="rows" id="lIng"></div>
+      <button class="ghost" data-add="ingresos" style="align-self:flex-start">+ Agregar ingreso</button>
+    </div>
+    <div class="card">
+      <div class="card-h"><h2>Gastos del mes</h2><span class="tag">Casa = se comparte</span></div>
+      <p class="note">Marca "Casa" en los gastos que se dividen. No pongas aquí diésel, seguro del auto ni cuotas de tarjetas.</p>
+      <div class="rows" id="lGas"></div>
+      <button class="ghost" data-add="gastos" style="align-self:flex-start">+ Agregar gasto</button>
+      <div class="split total"><span>Total gastos</span><span class="num" id="sGas"></span></div>
+    </div>
+    <div class="card">
+      <h2>Aporte a la casa</h2>
+      <div class="grid3">
+        <label>Quién aporta<input id="apNombre" type="text"></label>
+        <label>% de gastos casa<input id="apPct" type="number" inputmode="decimal"></label>
+        <label>Activo<input id="apOn" type="checkbox"></label>
+      </div>
+      <div class="split"><span class="muted">Aporte calculado</span><b class="num" id="apMonto"></b></div>
+    </div>
+    <div class="card">
+      <h2>Colchón</h2>
+      <label>Plata mínima que quieres que te sobre cada mes<input id="colchon" type="number" inputmode="numeric"></label>
+    </div>
+  </section>
+
+  <!-- DEUDAS -->
+  <section class="view" data-view="deudas" hidden>
+    <div class="card">
+      <h2>Tarjetas y créditos</h2>
+      <p class="note">Copia los "Vencimientos próximos meses" de tu estado de cuenta, separados por coma. Ej: 232750, 170827, 116254</p>
+      <div class="rows" id="lDeu"></div>
+      <button class="ghost" data-add="deudas" style="align-self:flex-start">+ Agregar deuda</button>
+    </div>
+    <div class="card">
+      <h2>Calendario de pagos</h2>
+      <div class="tablewrap"><table id="tDeu"></table></div>
+      <p class="note">Mientras no hagas compras nuevas, estas cuotas solo bajan. Cada compra nueva en cuotas atrasa la fecha del auto.</p>
+    </div>
+  </section>
+
+  <!-- RUTAS -->
+  <section class="view" data-view="rutas" hidden>
+    <div class="card">
+      <div class="card-h"><h2>Calcular una ruta</h2><span class="tag">mapa</span></div>
+      <div class="grid2">
+        <label>Desde<input id="rOrig" type="text" placeholder="Tu comuna"></label>
+        <label>Hasta<input id="rDest" type="text" placeholder="Lugar de trabajo, comuna"></label>
+      </div>
+      <div class="btns">
+        <button class="primary" id="btnRuta">Calcular km</button>
+        <a class="btnlink" id="lnkGmaps" href="https://www.google.com/maps" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>Abrir en Google Maps</a>
+      </div>
+      <p class="note" id="rMsg" aria-live="polite"></p>
+      <div id="map"></div>
+      <div class="grid2" id="rResult" hidden>
+        <div class="kpi"><small>Ida y vuelta</small><b id="rKm"></b></div>
+        <div class="kpi"><small>Tiempo ida</small><b id="rMin"></b></div>
+      </div>
+      <div class="grid2" id="rSave" hidden>
+        <label>Veces por semana<input id="rVeces" type="number" value="5" inputmode="decimal"></label>
+        <button class="ev" id="btnGuardarRuta" style="align-self:end">Guardar trayecto</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Mis trayectos</h2>
+      <div class="rows" id="lTra"></div>
+      <button class="ghost" data-add="trayectos" style="align-self:flex-start">+ Agregar a mano</button>
+      <div class="split total"><span>Km al mes</span><span class="num" id="sKm"></span></div>
+      <p class="note" id="kmSource"></p>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>Cronología de Google Maps</h2><span class="tag">km reales</span></div>
+      <p class="note">En el celular: Ajustes → Ubicación → Servicios de ubicación → Cronología → <b>Exportar datos de cronología</b>. Después elige ese archivo aquí y la app suma los km que hiciste en auto, mes por mes.</p>
+      <input type="file" id="fileTimeline" accept=".json,application/json">
+      <div class="tablewrap"><table id="tTimeline"></table></div>
+      <label style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="useTimeline" style="margin:0">Usar el promedio de la cronología en vez de mis trayectos</label>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>Cargas de diésel</h2><span class="tag">rendimiento real</span></div>
+      <p class="note">Anota cada vez que llenas el estanque, con el odómetro. Con dos cargas o más la app calcula tu km/L real.</p>
+      <div class="grid2">
+        <label>Fecha<input id="cFecha" type="date"></label>
+        <label>Odómetro (km)<input id="cOdo" type="number" inputmode="numeric"></label>
+        <label>Litros<input id="cLit" type="number" inputmode="decimal" step="0.01"></label>
+        <label>Monto $<input id="cMonto" type="number" inputmode="numeric"></label>
+      </div>
+      <button class="primary" id="btnCarga" style="align-self:flex-start">Agregar carga</button>
+      <div class="tablewrap"><table id="tCargas"></table></div>
+      <div class="kpis"><div class="kpi"><small>Rendimiento medido</small><b id="cRend">—</b></div><div class="kpi"><small>Precio promedio</small><b id="cPrecio">—</b></div></div>
+    </div>
+  </section>
+
+  <!-- AUTOS -->
+  <section class="view" data-view="autos" hidden>
+    <div class="card">
+      <div class="card-h"><h2>Tu auto actual</h2><span class="pill dsl">Diésel</span></div>
+      <label>Modelo<input type="text" data-k="actual.nombre"></label>
+      <div class="grid2">
+        <label>Rendimiento (km/L)<input type="number" step="0.1" data-k="actual.rend"></label>
+        <label>Precio diésel ($/L)<input type="number" data-k="actual.precio"></label>
+        <label>Mantención al año<input type="number" data-k="actual.mant"></label>
+        <label>Seguro al mes<input type="number" data-k="actual.seguro"></label>
+        <label>Permiso al año<input type="number" data-k="actual.permiso"></label>
+        <label>Valor de venta<input type="number" data-k="actual.venta"></label>
+      </div>
+      <a class="btnlink" id="lnkTasar" href="https://www.chileautos.cl/vehiculos/peugeot/301/" target="_blank" rel="noopener" style="align-self:flex-start">Ver precios del 301 en Chileautos</a>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>Eléctricos que te interesan</h2><span class="tag">toca ★ para elegir</span></div>
+      <div class="rows" id="lEv"></div>
+      <button class="ghost" data-add="evs" style="align-self:flex-start">+ Agregar auto</button>
+    </div>
+
+    <div class="card">
+      <h2>Crédito y costos del eléctrico</h2>
+      <div class="grid2">
+        <label>Tasa (% mensual)<input type="number" step="0.01" data-k="credito.tasa"></label>
+        <label>Plazo (meses)<input type="number" data-k="credito.plazo"></label>
+        <label>Pie extra $<input type="number" data-k="credito.pieExtra"></label>
+        <label>Cargador en casa $<input type="number" data-k="credito.cargador"></label>
+        <label>Precio luz ($/kWh)<input type="number" data-k="credito.kwh"></label>
+        <label>Mantención al año<input type="number" data-k="credito.mant"></label>
+        <label>Seguro al mes<input type="number" data-k="credito.seguro"></label>
+        <label>Permiso al año<input type="number" data-k="credito.permiso"></label>
+      </div>
+      <p class="note">El precio del kWh sale de tu boleta de luz: total a pagar ÷ kWh consumidos.</p>
+    </div>
+  </section>
+
+  <!-- DATOS -->
+  <section class="view" data-view="datos" hidden>
+    <div class="card">
+      <h2>Cargar mis datos</h2>
+      <p class="note">Elige el archivo <b>datos.json</b> o pega su contenido abajo.</p>
+      <input type="file" id="fileDatos" accept=".json,application/json,text/plain">
+      <textarea id="json" aria-label="Datos en texto"></textarea>
+      <div class="btns">
+        <button class="primary" id="btnLoad">Cargar texto pegado</button>
+        <button id="btnCopy">Copiar mis datos</button>
+        <button id="btnReset">Volver al ejemplo</button>
+      </div>
+      <p class="note">Tus datos se guardan solo en este teléfono. Copia el texto para respaldarlo o para mandárselo a Claude.</p>
+    </div>
+  </section>
+</main>
+
+<nav class="tabs" role="tablist" aria-label="Secciones">
+  <button role="tab" data-tab="inicio" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Inicio</button>
+  <button role="tab" data-tab="plata" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Plata</button>
+  <button role="tab" data-tab="deudas" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>Deudas</button>
+  <button role="tab" data-tab="rutas" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>Rutas</button>
+  <button role="tab" data-tab="autos" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M5 16h14M3 16v-4l2-5h14l2 5v4"/><circle cx="7.5" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg>Autos</button>
+</nav>
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+const KEY='planAutoElectrico.v2', OLDKEY='planCambioAuto.v1';
+const EJEMPLO={v:2,ejemplo:true,
+  ingresos:[{n:'Sueldo líquido',v:1100000},{n:'Otro ingreso',v:150000}],
+  gastos:[{n:'Dividendo',v:370000,casa:true},{n:'Supermercado',v:250000,casa:true},{n:'Luz',v:75000,casa:true},{n:'Agua',v:30000,casa:true},{n:'Internet',v:24000,casa:true},{n:'Celular',v:25000,casa:false},{n:'TAG / peajes',v:22000,casa:false},{n:'Suscripciones',v:15000,casa:false}],
+  aporte:{nombre:'Pareja',pct:50,on:true},
+  deudas:[{n:'Tarjeta de crédito',cuotas:'230000, 170000, 116000, 40000, 16000',tasa:3}],
+  trayectos:[{n:'Casa – trabajo',km:180,veces:5.5}],
+  timeline:{meses:{},usar:false},
+  cargas:[],
+  actual:{nombre:'Peugeot 301 diésel 2021',rend:17,precio:1000,mant:400000,seguro:0,permiso:150000,venta:7000000},
+  evs:[{n:'BYD Dolphin usado 2024',precio:14500000,autonomia:340,consumo:15,fav:true},{n:'BYD Dolphin Mini usado 2025',precio:12600000,autonomia:290,consumo:13,fav:false},{n:'MG4 usado 2024',precio:17300000,autonomia:380,consumo:16,fav:false}],
+  credito:{tasa:1.6,plazo:48,pieExtra:0,cargador:600000,kwh:230,mant:150000,seguro:45000,permiso:70000},
+  colchon:60000};
+const clone=o=>JSON.parse(JSON.stringify(o));
+const n=v=>{const x=parseFloat(String(v).replace(',','.'));return isFinite(x)?x:0};
+const $=id=>document.getElementById(id);
+const fmt=new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0});
+const $$=v=>fmt.format(Math.round(v));
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const mesTxt=m=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+m);return d.toLocaleDateString('es-CL',{month:'long',year:'numeric'})};
+const cap=t=>t.charAt(0).toUpperCase()+t.slice(1);
+const mesCorto=m=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+m);return d.toLocaleDateString('es-CL',{month:'short'}).replace('.','')};
+function toast(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2600)}
+
+function migrate(o){
+  if(!o) return null;
+  if(o.v===2) return Object.assign(clone(EJEMPLO),o);
+  if(!o.ingresos) return null;
+  const S=clone(EJEMPLO);S.ejemplo=false;
+  const casaRx=/dividendo|luz|agua|internet|super|gas\b|hipotec/i;
+  let aporte=0;S.ingresos=[];
+  o.ingresos.forEach(i=>{if(/aporte/i.test(i.n)){aporte+=n(i.v);S.aporte.nombre=(i.n.match(/aporte\s+(\w+)/i)||[])[1]||'Aporte'}else S.ingresos.push({n:i.n,v:n(i.v)})});
+  S.aporte.on=aporte>0;
+  S.gastos=(o.gastos||[]).map(g=>({n:g.n,v:n(g.v),casa:casaRx.test(g.n)}));
+  S.deudas=(o.deudas||[]).map(d=>{let s=n(d.saldo),c=n(d.cuota)||s;const a=[];while(s>0.5&&a.length<72){const p=Math.min(c,s);a.push(Math.round(p));s-=p}return{n:d.n,cuotas:a.join(', '),tasa:n(d.tasa)}});
+  S.trayectos=(o.trayectos||[]).map(t=>({n:t.n,km:n(t.km),veces:n(t.veces)}));
+  if(o.actual) S.actual=Object.assign(S.actual,o.actual);
+  if(o.ev){S.evs=[{n:'Eléctrico elegido',precio:n(o.ev.precio),autonomia:300,consumo:n(o.ev.consumo)||15,fav:true}];
+    Object.assign(S.credito,{tasa:n(o.ev.tasa),plazo:n(o.ev.plazo),pieExtra:n(o.ev.pieExtra),cargador:n(o.ev.cargador),kwh:n(o.ev.kwh),mant:n(o.ev.mant),seguro:n(o.ev.seguro),permiso:n(o.ev.permiso)})}
+  if(o.colchon!=null) S.colchon=n(o.colchon);
+  return S;
+}
+let S=null;
+try{S=migrate(JSON.parse(localStorage.getItem(KEY)))}catch(e){}
+if(!S){try{S=migrate(JSON.parse(localStorage.getItem(OLDKEY)))}catch(e){}}
+if(!S) S=clone(EJEMPLO);
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+
+const cuotasDe=d=>String(d.cuotas||'').split(/[,;\s]+/).map(x=>n(x.replace(/\./g,''))).filter(x=>x>0);
+function pmt(r,np,pv){if(pv<=0)return 0;if(!r)return pv/np;return pv*r/(1-Math.pow(1+r,-np))}
+function favEv(){return S.evs.find(e=>e.fav)||S.evs[0]||{n:'Sin auto',precio:0,autonomia:0,consumo:15}}
+function rendReal(){const c=S.cargas.filter(x=>n(x.odo)>0).sort((a,b)=>n(a.odo)-n(b.odo));if(c.length<2)return null;
+  const km=n(c[c.length-1].odo)-n(c[0].odo);const lit=c.slice(1).reduce((t,x)=>t+n(x.litros),0);return lit>0&&km>0?km/lit:null}
+function precioReal(){const c=S.cargas.filter(x=>n(x.litros)>0&&n(x.monto)>0);if(!c.length)return null;return c.reduce((t,x)=>t+n(x.monto),0)/c.reduce((t,x)=>t+n(x.litros),0)}
+function timelineProm(){const m=Object.entries(S.timeline.meses||{}).sort();if(!m.length)return null;
+  const now=new Date();const cur=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  const full=m.filter(([k])=>k<cur).slice(-3);const use=full.length?full:m.slice(-1);return use.reduce((t,[,v])=>t+v,0)/use.length}
+
+function calc(){
+  const ingBase=S.ingresos.reduce((t,x)=>t+n(x.v),0);
+  const gasCasa=S.gastos.filter(g=>g.casa).reduce((t,x)=>t+n(x.v),0);
+  const gas=S.gastos.reduce((t,x)=>t+n(x.v),0);
+  const aporte=S.aporte.on?gasCasa*n(S.aporte.pct)/100:0;
+  const ing=ingBase+aporte;
+  const kmTray=S.trayectos.reduce((t,x)=>t+n(x.km)*n(x.veces),0)*4.33;
+  const tl=timelineProm();
+  const kmMes=(S.timeline.usar&&tl)?tl:kmTray;
+  const rr=rendReal(),pr=precioReal();
+  const rend=n(S.actual.rend)||17, precio=n(S.actual.precio)||1000;
+  const comb=kmMes/rend*precio;
+  const autoAct=comb+n(S.actual.mant)/12+n(S.actual.seguro)+n(S.actual.permiso)/12;
+  const E=favEv(),C=S.credito;
+  const elec=kmMes*n(E.consumo)/100*n(C.kwh);
+  const evOper=elec+n(C.mant)/12+n(C.seguro)+n(C.permiso)/12;
+  const pie=n(S.actual.venta)+n(C.pieExtra);
+  const fin=Math.max(0,n(E.precio)-pie);
+  const r=n(C.tasa)/100,np=Math.max(1,n(C.plazo));
+  const cuotaEv=pmt(r,np,fin);
+  const evTot=evOper+cuotaEv;
+  const colchon=n(S.colchon);
+  const deudaMes=i=>S.deudas.reduce((t,d)=>t+(cuotasDe(d)[i]||0),0);
+  const ultimaCuota=S.deudas.reduce((m,d)=>Math.max(m,cuotasDe(d).length),0);
+  const totalDeuda=S.deudas.reduce((t,d)=>t+cuotasDe(d).reduce((a,b)=>a+b,0),0);
+  const base=ing-gas-autoAct;
+  const objetivo=n(C.cargador)+n(C.pieExtra);
+  // proyección 18 meses
+  const H=18,proj=[];let ahorro=0,compra=null;
+  for(let i=0;i<H;i++){
+    const dm=deudaMes(i);
+    const sinEv=base-dm, conEv=ing-gas-dm-evTot;
+    if(compra===null&&i>=ultimaCuota&&ahorro>=objetivo&&conEv>=colchon){compra=i;ahorro-=objetivo}
+    const s=compra!==null?conEv:sinEv;
+    ahorro+=Math.max(0,s-colchon);
+    proj.push({i,s,ev:compra!==null,ahorro,dm});
+  }
+  const holgura=ing-gas-evOper-colchon;
+  const finMax=holgura<=0?0:(r?holgura*(1-Math.pow(1+r,-np))/r:holgura*np);
+  const kmDia=Math.max(0,...S.trayectos.map(t=>n(t.km)));
+  return {ing,ingBase,aporte,gas,gasCasa,kmMes,kmTray,tl,rr,pr,comb,autoAct,E,elec,evOper,pie,fin,cuotaEv,evTot,colchon,
+    deudaMes,ultimaCuota,totalDeuda,sobra:base-deudaMes(0),sobraEvHoy:ing-gas-deudaMes(0)-evTot,proj,compra,objetivo,precioMax:finMax+pie,kmDia};
+}
+
+function chart(R){
+  const W=640,Hh=220,pl=8,pr=8,pt=14,pb=26;
+  const vals=R.proj.map(p=>p.s), acc=R.proj.map(p=>p.ahorro);
+  const mx=Math.max(1,...vals,...acc.map(a=>a/4)), mn=Math.min(0,...vals);
+  const y=v=>pt+(mx-v)/(mx-mn)*(Hh-pt-pb), bw=(W-pl-pr)/R.proj.length;
+  const css=getComputedStyle(document.documentElement),c=k=>css.getPropertyValue(k).trim();
+  let s=`<line x1="${pl}" x2="${W-pr}" y1="${y(0)}" y2="${y(0)}" stroke="${c('--line')}" stroke-width="1"/>`;
+  R.proj.forEach((p,i)=>{const x=pl+i*bw+bw*.18,w=bw*.64,y0=y(Math.max(0,p.s)),h=Math.abs(y(p.s)-y(0));
+    s+=`<rect x="${x.toFixed(1)}" y="${(p.s>=0?y0:y(0)).toFixed(1)}" width="${w.toFixed(1)}" height="${Math.max(1,h).toFixed(1)}" rx="3" fill="${p.s<0?c('--bad'):p.ev?c('--ev'):c('--dsl')}"><title>${mesTxt(i)}: ${$$(p.s)}</title></rect>`;
+    if(i%3===0) s+=`<text x="${(x+w/2).toFixed(1)}" y="${Hh-8}" font-size="11" text-anchor="middle" fill="${c('--muted')}" font-family="Inter,sans-serif">${mesCorto(i)}</text>`});
+  const pts=R.proj.map((p,i)=>`${(pl+i*bw+bw/2).toFixed(1)},${y(p.ahorro/4).toFixed(1)}`).join(' ');
+  s+=`<polyline points="${pts}" fill="none" stroke="${c('--brand')}" stroke-width="2.2" stroke-linejoin="round"/>`;
+  const last=R.proj[R.proj.length-1];
+  s+=`<circle cx="${(pl+(R.proj.length-1)*bw+bw/2).toFixed(1)}" cy="${y(last.ahorro/4).toFixed(1)}" r="4" fill="${c('--brand')}"><title>Ahorro acumulado: ${$$(last.ahorro)}</title></circle>`;
+  if(R.compra!==null){const x=pl+R.compra*bw;s+=`<line x1="${x}" x2="${x}" y1="${pt}" y2="${Hh-pb}" stroke="${c('--ev')}" stroke-dasharray="4 4"/><text x="${x+4}" y="${pt+10}" font-size="11" fill="${c('--ev')}" font-family="Inter,sans-serif" font-weight="600">Cambio</text>`}
+  $('chart').innerHTML=s;
+}
+
+function render(){
+  const R=calc();
+  $('exBanner').hidden=!S.ejemplo;
+  // hero
+  const pill=$('hPill');let cls,txt,title;
+  if(R.sobra<0){cls='bad';txt='Ajustar gastos';title=`Este mes te faltan ${$$(-R.sobra)}. Primero hay que ordenar los gastos.`}
+  else if(R.sobraEvHoy>=R.colchon&&R.ultimaCuota===0){cls='ok';txt='Listo para cambiar';title=`Ya puedes cambiar a eléctrico y te sobrarían ${$$(R.sobraEvHoy)} al mes.`}
+  else if(R.compra!==null){cls='warn';txt='En camino';title=`Puedes cambiar a eléctrico en ${mesTxt(R.compra)}.`}
+  else{cls='bad';txt='Aún no alcanza';title=`Con estos números el eléctrico no calza en 18 meses. Prueba un auto más barato o más pie.`}
+  pill.className='pill '+cls;pill.textContent=txt;$('hTitle').textContent=title;
+  $('hSobra').textContent=$$(R.sobra);$('hSobraEv').textContent=$$(R.ultimaCuota===0?R.sobraEvHoy:(R.ing-R.gas-R.evTot));
+  $('hFecha').textContent=R.compra!==null?cap(mesTxt(R.compra)):'—';
+  const pagado=R.ultimaCuota===0?1:0;const tot=R.totalDeuda;
+  const inicial=S.deudaInicial&&S.deudaInicial>=tot?S.deudaInicial:tot;
+  if(!S.deudaInicial||S.deudaInicial<tot){S.deudaInicial=tot;save()}
+  const pct=inicial>0?(1-tot/inicial):pagado;
+  $('hProg').style.width=Math.round(Math.max(0.03,pct)*100)+'%';$('hProgTxt').textContent=tot>0?`quedan ${$$(tot)}`:'sin deudas';
+  chart(R);
+  // roadmap
+  const steps=[];
+  if(R.sobra<R.colchon) steps.push({c:'',t:'Ajustar gastos',d:`Hoy te sobran ${$$(R.sobra)}. La meta es dejar al menos ${$$(R.colchon)} libres al mes.`,w:'ahora'});
+  if(R.ultimaCuota>0) steps.push({c:'',t:'Terminar las tarjetas',d:`Sin compras nuevas, la última cuota es en ${mesTxt(R.ultimaCuota-1)}. Quedan ${$$(R.totalDeuda)} en total.`,w:`hasta ${mesTxt(R.ultimaCuota-1)}`});
+  else steps.push({c:'done',t:'Tarjetas al día',d:'No tienes cuotas pendientes.',w:'listo'});
+  if(R.objetivo>0) steps.push({c:'',t:'Juntar cargador y pie extra',d:`Meta: ${$$(R.objetivo)}.`,w:R.compra!==null?`antes de ${mesTxt(R.compra)}`:'pendiente'});
+  steps.push({c:'',t:`Vender el ${S.actual.nombre||'auto actual'}`,d:`Valor estimado ${$$(n(S.actual.venta))}. Úsalo como pie.`,w:R.compra!==null?mesTxt(R.compra):'pendiente'});
+  steps.push({c:'car',t:`Comprar ${R.E.n}`,d:`Precio ${$$(n(R.E.precio))}, cuota ${$$(R.cuotaEv)} por ${n(S.credito.plazo)} meses. Precio máximo que te calza: ${$$(Math.max(0,R.precioMax))}.`,w:R.compra!==null?mesTxt(R.compra):'cuando calce'});
+  $('roadmap').innerHTML=steps.map(s=>`<li class="${s.c}"><div><div class="when">${esc(s.w)}</div><b>${esc(s.t)}</b><p class="muted small">${esc(s.d)}</p></div></li>`).join('');
+  // compare
+  $('evName').textContent=R.E.n;
+  const src=(S.timeline.usar&&R.tl)?'según tu cronología de Google Maps':'según tus trayectos';
+  $('kmTxt').textContent=`Unos ${Math.round(R.kmMes).toLocaleString('es-CL')} km al mes, ${src}.`;
+  const ahorro=R.autoAct-R.evOper;
+  $('cmp').innerHTML=`<span class="h">Al mes</span><span class="h r">Diésel</span><span class="h r">Eléctrico</span>
+   <span>Energía</span><span class="num r">${$$(R.comb)}</span><span class="num r">${$$(R.elec)}</span>
+   <span>Mantención, seguro, permiso</span><span class="num r">${$$(R.autoAct-R.comb)}</span><span class="num r">${$$(R.evOper-R.elec)}</span>
+   <span>Cuota del auto</span><span class="num r">${$$(0)}</span><span class="num r">${$$(R.cuotaEv)}</span>
+   <span><b>Total</b></span><span class="num r"><b>${$$(R.autoAct)}</b></span><span class="num r"><b>${$$(R.evTot)}</b></span>
+   <span class="muted">Ahorro en uso</span><span></span><span class="num r" style="color:var(--ok)">${$$(ahorro)}</span>`;
+  $('kIng').textContent=$$(R.ing);$('kGas').textContent=$$(R.gas);$('kDeu').textContent=$$(R.deudaMes(0));$('kAuto').textContent=$$(R.autoAct);
+  // plata
+  $('sGas').textContent=$$(R.gas);$('apMonto').textContent=$$(R.aporte);
+  // deudas table
+  const nm=Math.max(1,R.ultimaCuota);
+  let th='<tr><th>Mes</th>'+S.deudas.map(d=>`<th class="r">${esc(d.n)}</th>`).join('')+'<th class="r">Total</th></tr>';
+  for(let i=0;i<nm;i++){th+=`<tr><td>${cap(mesTxt(i))}</td>`+S.deudas.map(d=>`<td class="r num">${$$(cuotasDe(d)[i]||0)}</td>`).join('')+`<td class="r num"><b>${$$(R.deudaMes(i))}</b></td></tr>`}
+  $('tDeu').innerHTML=th;
+  // rutas
+  $('sKm').textContent=Math.round(R.kmTray).toLocaleString('es-CL')+' km';
+  $('kmSource').textContent=R.tl?`Tu cronología de Google Maps marca ${Math.round(R.tl).toLocaleString('es-CL')} km al mes en promedio.`:'';
+  $('useTimeline').checked=!!S.timeline.usar;$('useTimeline').disabled=!R.tl;
+  const tm=Object.entries(S.timeline.meses||{}).sort();
+  $('tTimeline').innerHTML=tm.length?'<tr><th>Mes</th><th class="r">Km en auto</th></tr>'+tm.map(([k,v])=>`<tr><td>${k}</td><td class="r num">${Math.round(v).toLocaleString('es-CL')}</td></tr>`).join(''):'';
+  $('tCargas').innerHTML=S.cargas.length?'<tr><th>Fecha</th><th class="r">Odómetro</th><th class="r">Litros</th><th class="r">Monto</th><th></th></tr>'+S.cargas.map((c,i)=>`<tr><td>${esc(c.f)}</td><td class="r num">${n(c.odo).toLocaleString('es-CL')}</td><td class="r num">${n(c.litros)}</td><td class="r num">${$$(n(c.monto))}</td><td><button class="del" style="height:30px" data-delcarga="${i}" aria-label="Eliminar carga">×</button></td></tr>`).join(''):'';
+  $('cRend').textContent=R.rr?R.rr.toFixed(1)+' km/L':'—';$('cPrecio').textContent=R.pr?$$(R.pr)+'/L':'—';
+  // autos: autonomy flags
+  document.querySelectorAll('[data-evflag]').forEach(el=>{const e=S.evs[+el.dataset.evflag];if(!e)return;const real=n(e.autonomia),need=R.kmDia;
+    el.className='pill '+(real>=need*1.2?'ok':real>=need?'warn':'bad');
+    el.textContent=need?(real>=need*1.2?`Autonomía holgada (${real} km)`:real>=need?`Autonomía justa (${real} km)`:`No alcanza ida y vuelta (${need} km)`):`${real} km`;
+    const q=$('evq'+el.dataset.evflag);if(q)q.textContent=`Cuota ${$$(pmt(n(S.credito.tasa)/100,Math.max(1,n(S.credito.plazo)),Math.max(0,n(e.precio)-R.pie)))}/mes`});
+  $('json').value=JSON.stringify(S);
+}
+
+const LISTS={
+  ingresos:{el:'lIng',cls:'',f:[['n','Ingreso','text'],['v','Monto $','number']]},
+  gastos:{el:'lGas',cls:'gasto',f:[['n','Gasto','text'],['v','Monto $','number'],['casa','Casa','checkbox']]},
+  deudas:{el:'lDeu',cls:'deuda',f:[['n','Nombre','text'],['tasa','% mes','number'],['cuotas','Cuotas próximas (separadas por coma)','text','cuotas']]},
+  trayectos:{el:'lTra',cls:'',f:[['n','Trayecto','text'],['km','Km ida y vuelta','number'],['veces','Veces/sem','number']]}
+};
+function inputHtml(k,i,[f,lab,t,c],v){
+  if(t==='checkbox') return `<label class="${c||''}">${lab}<input id="${k}-${i}-${f}" type="checkbox" data-list="${k}" data-i="${i}" data-f="${f}" ${v?'checked':''}></label>`;
+  return `<label class="${c||''}">${lab}<input id="${k}-${i}-${f}" type="${t}" ${t==='number'?'inputmode="decimal" step="any"':''} data-list="${k}" data-i="${i}" data-f="${f}" value="${esc(v)}"></label>`}
+function renderList(k){
+  if(k==='evs') return renderEvs();
+  const L=LISTS[k];
+  $(L.el).innerHTML=S[k].map((it,i)=>{const fs=L.f.filter(x=>x[3]!=='cuotas'),extra=L.f.filter(x=>x[3]==='cuotas');
+    return `<div class="row ${L.cls}">${fs.map(f=>inputHtml(k,i,f,it[f[0]])).join('')}<button class="del" aria-label="Eliminar" data-del="${k}" data-i="${i}">×</button>${extra.map(f=>inputHtml(k,i,f,it[f[0]])).join('')}</div>`}).join('');
+}
+function renderEvs(){
+  $('lEv').innerHTML=S.evs.map((e,i)=>`<div class="evrow ${e.fav?'fav':''}">
+    <div class="split"><button class="ghost" data-fav="${i}" aria-label="Elegir este auto" style="padding:4px 8px;font-size:18px;color:${e.fav?'var(--ev)':'var(--muted)'}">${e.fav?'★':'☆'}</button>
+    <span class="pill" data-evflag="${i}"></span><button class="del" style="height:32px" data-del="evs" data-i="${i}" aria-label="Eliminar">×</button></div>
+    <label>Modelo<input id="evs-${i}-n" type="text" data-list="evs" data-i="${i}" data-f="n" value="${esc(e.n)}"></label>
+    <div class="grid3 evgrid"><label>Precio $<input id="evs-${i}-precio" type="number" data-list="evs" data-i="${i}" data-f="precio" value="${n(e.precio)}"></label>
+    <label>Autonomía km<input id="evs-${i}-autonomia" type="number" data-list="evs" data-i="${i}" data-f="autonomia" value="${n(e.autonomia)}"></label>
+    <label>kWh/100 km<input id="evs-${i}-consumo" type="number" step="0.1" data-list="evs" data-i="${i}" data-f="consumo" value="${n(e.consumo)}"></label></div>
+    <div class="split small"><span class="muted" id="evq${i}"></span><a href="https://www.chileautos.cl/vehiculos/?q=${encodeURIComponent(e.n.replace(/usado|nuevo|\d{4}/gi,'').trim())}" target="_blank" rel="noopener">Buscar en Chileautos</a></div></div>`).join('');
+}
+function renderAll(){Object.keys(LISTS).forEach(renderList);renderEvs();
+  document.querySelectorAll('[data-k]').forEach(inp=>{const [a,b]=inp.dataset.k.split('.');inp.value=S[a][b]??''});
+  $('colchon').value=S.colchon;$('apNombre').value=S.aporte.nombre;$('apPct').value=S.aporte.pct;$('apOn').checked=!!S.aporte.on;
+  updateGmaps();render()}
+function touch(){S.ejemplo=false;save();render()}
+
+document.addEventListener('input',e=>{const t=e.target;
+  if(t.dataset.list){const it=S[t.dataset.list][+t.dataset.i];it[t.dataset.f]=t.type==='checkbox'?t.checked:t.type==='number'?n(t.value):t.value;touch()}
+  else if(t.dataset.k){const [a,b]=t.dataset.k.split('.');S[a][b]=t.type==='number'?n(t.value):t.value;touch()}
+  else if(t.id==='colchon'){S.colchon=n(t.value);touch()}
+  else if(t.id==='apNombre'){S.aporte.nombre=t.value;touch()}
+  else if(t.id==='apPct'){S.aporte.pct=n(t.value);touch()}
+  else if(t.id==='apOn'){S.aporte.on=t.checked;touch()}
+  else if(t.id==='useTimeline'){S.timeline.usar=t.checked;touch()}
+  else if(t.id==='rOrig'||t.id==='rDest'){updateGmaps()}
+});
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.add){const k=b.dataset.add;const blank={ingresos:{n:'',v:0},gastos:{n:'',v:0,casa:false},deudas:{n:'',cuotas:'',tasa:3},trayectos:{n:'',km:0,veces:1},evs:{n:'Nuevo eléctrico',precio:0,autonomia:300,consumo:15,fav:false}}[k];S[k].push(blank);renderList(k);touch()}
+  else if(b.dataset.del){S[b.dataset.del].splice(+b.dataset.i,1);if(b.dataset.del==='evs'&&S.evs.length&&!S.evs.some(x=>x.fav))S.evs[0].fav=true;renderList(b.dataset.del);touch()}
+  else if(b.dataset.fav){S.evs.forEach((x,i)=>x.fav=i===+b.dataset.fav);renderEvs();touch()}
+  else if(b.dataset.delcarga){S.cargas.splice(+b.dataset.delcarga,1);touch()}
+  else if(b.dataset.tab){show(b.dataset.tab)}
+});
+function show(v){document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.view!==v);
+  document.querySelectorAll('nav [data-tab]').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===v));window.scrollTo(0,0);
+  if(v==='rutas') setTimeout(initMap,50)}
+
+// ---------- Mapa y rutas ----------
+let map=null,routeLayer=null,lastRoute=null;
+function initMap(){
+  if(map){map.invalidateSize();return}
+  if(!window.L){$('map').innerHTML='<p class="note" style="padding:12px">El mapa necesita conexión a internet.</p>';return}
+  map=L.map('map',{zoomControl:true}).setView([-33.3203,-71.4108],10);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);
+}
+function gmapsUrl(o,d){return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(o)}&destination=${encodeURIComponent(d)}&travelmode=driving`}
+function updateGmaps(){const o=$('rOrig').value.trim(),d=$('rDest').value.trim();$('lnkGmaps').href=o&&d?gmapsUrl(o,d):'https://www.google.com/maps'}
+async function geocode(q){
+  const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=cl&accept-language=es&q='+encodeURIComponent(q));
+  if(!r.ok) throw new Error('geo');const j=await r.json();if(!j.length) throw new Error('nf:'+q);return {lat:+j[0].lat,lon:+j[0].lon,name:j[0].display_name}}
+$('btnRuta').onclick=async()=>{
+  const o=$('rOrig').value.trim(),d=$('rDest').value.trim();
+  if(!o||!d){$('rMsg').textContent='Escribe desde dónde y hasta dónde.';return}
+  $('rMsg').textContent='Buscando la ruta…';initMap();
+  try{
+    const [a,b]=await Promise.all([geocode(o),geocode(d)]);
+    const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=full&geometries=geojson`);
+    const j=await r.json();if(!j.routes||!j.routes.length) throw new Error('route');
+    const rt=j.routes[0];const km=rt.distance/1000;lastRoute={o,d,km};
+    $('rKm').textContent=(km*2).toFixed(0)+' km';$('rMin').textContent=Math.round(rt.duration/60)+' min';
+    $('rResult').hidden=false;$('rSave').hidden=false;
+    $('rMsg').textContent=`Ruta encontrada: ${km.toFixed(1)} km de ida. Puedes guardarla como trayecto.`;
+    if(map&&window.L){if(routeLayer)map.removeLayer(routeLayer);
+      routeLayer=L.geoJSON(rt.geometry,{style:{color:getComputedStyle(document.documentElement).getPropertyValue('--brand').trim()||'#2f4bd3',weight:5}}).addTo(map);
+      L.circleMarker([a.lat,a.lon],{radius:7,color:'#d77a1f'}).addTo(routeLayer);L.circleMarker([b.lat,b.lon],{radius:7,color:'#0e9f86'}).addTo(routeLayer);
+      map.fitBounds(routeLayer.getBounds(),{padding:[20,20]})}
+  }catch(err){
+    const nf=String(err.message).startsWith('nf:');
+    $('rMsg').textContent=nf?`No encontré "${err.message.slice(3)}". Prueba agregando la comuna, por ejemplo "Avenida Brasil, Valparaíso".`
+      :'No pude calcular la ruta aquí. En la app instalada (APK) funciona con internet; mientras tanto usa "Abrir en Google Maps" y anota los km a mano.';
+  }
+};
+$('btnGuardarRuta').onclick=()=>{if(!lastRoute)return;S.trayectos.push({n:`${lastRoute.o} – ${lastRoute.d}`,km:Math.round(lastRoute.km*2),veces:n($('rVeces').value)||1});renderList('trayectos');touch();toast('Trayecto guardado')};
+
+// ---------- Cronología de Google Maps ----------
+function parseTimeline(j){
+  const meses={};const add=(t,m)=>{if(!t||!(m>0))return;const k=String(t).slice(0,7);meses[k]=(meses[k]||0)+m/1000};
+  const isCar=x=>/passenger|in_vehicle|driving|car/i.test(String(x||''));
+  const segs=Array.isArray(j)?j:(j.semanticSegments||[]);
+  segs.forEach(s=>{const a=s.activity;if(a&&a.topCandidate&&isCar(a.topCandidate.type))add(s.startTime,n(a.distanceMeters))});
+  (j.timelineObjects||[]).forEach(o=>{const a=o.activitySegment;if(a&&isCar(a.activityType))add(a.duration&&(a.duration.startTimestamp||a.duration.startTimestampMs&&new Date(+a.duration.startTimestampMs).toISOString()),n(a.distance))});
+  return meses;
+}
+function readFile(input,cb){const f=input.files&&input.files[0];if(!f)return;const r=new FileReader();r.onload=()=>cb(r.result);r.readAsText(f)}
+$('fileTimeline').onchange=e=>readFile(e.target,txt=>{try{const m=parseTimeline(JSON.parse(txt));if(!Object.keys(m).length){toast('No encontré viajes en auto en ese archivo');return}
+  S.timeline.meses=m;S.timeline.usar=true;touch();toast('Cronología cargada')}catch(err){toast('Ese archivo no es una cronología válida')}});
+
+// ---------- Cargas ----------
+$('cFecha').value=new Date().toISOString().slice(0,10);
+$('btnCarga').onclick=()=>{const c={f:$('cFecha').value,odo:n($('cOdo').value),litros:n($('cLit').value),monto:n($('cMonto').value)};
+  if(!c.litros&&!c.monto){toast('Escribe al menos litros o monto');return}
+  S.cargas.push(c);S.cargas.sort((a,b)=>a.f<b.f?-1:1);
+  const rr=rendReal(),pr=precioReal();if(rr)S.actual.rend=Math.round(rr*10)/10;if(pr)S.actual.precio=Math.round(pr);
+  ['cOdo','cLit','cMonto'].forEach(id=>$(id).value='');renderAll();save();toast(rr?`Rendimiento real: ${rr.toFixed(1)} km/L`:'Carga guardada')};
+
+// ---------- Datos ----------
+function load(txt){try{const d=migrate(JSON.parse(txt));if(!d)throw 0;S=d;S.ejemplo=false;S.deudaInicial=0;save();renderAll();toast('Datos cargados');show('inicio')}catch(e){toast('Ese texto no es válido')}}
+$('fileDatos').onchange=e=>readFile(e.target,load);
+$('btnLoad').onclick=()=>load($('json').value);
+$('btnCopy').onclick=()=>{const ta=$('json');ta.value=JSON.stringify(S);const ok=()=>toast('Copiado');
+  const fb=()=>{ta.focus();ta.select();try{document.execCommand('copy');ok()}catch(e){toast('Mantén presionado el texto y elige Copiar')}};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(ta.value).then(ok,fb);else fb()};
+let armed=false;$('btnReset').onclick=e=>{if(!armed){armed=true;e.target.textContent='Toca otra vez para borrar';setTimeout(()=>{armed=false;e.target.textContent='Volver al ejemplo'},3000);return}
+  S=clone(EJEMPLO);save();renderAll();armed=false;e.target.textContent='Volver al ejemplo';toast('Ejemplo cargado')};
+
+renderAll();
+})();
+</script>

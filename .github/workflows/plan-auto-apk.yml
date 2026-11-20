@@ -3,7 +3,7 @@ name: Plan Auto APK
 on:
   push:
     paths:
-      - 'app-plan-auto/**'
+      - 'plan-auto/app/**'
       - '.github/workflows/plan-auto-apk.yml'
   workflow_dispatch:
 
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: app-plan-auto/android
+        working-directory: plan-auto/app/android
     steps:
       - uses: actions/checkout@v4
 
@@ -47,13 +47,13 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: PlanAuto-apk
-          path: app-plan-auto/PlanAuto.apk
+          path: plan-auto/app/PlanAuto.apk
 
       - name: Publicar descarga directa
         uses: softprops/action-gh-release@v2
         with:
           tag_name: plan-auto-latest
-          name: Plan Auto (APK)
+          name: Plan Auto Eléctrico (APK)
           body: Descarga PlanAuto.apk desde el celular e instálalo (permite "instalar apps desconocidas").
-          files: app-plan-auto/PlanAuto.apk
+          files: plan-auto/app/PlanAuto.apk
           make_latest: false
